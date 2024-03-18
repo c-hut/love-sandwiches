@@ -62,6 +62,29 @@ def get_sales_data():
     print("Example: 10, 20, 30, 40, 50, 60\n")
 
     data_str = input("Enter your data here: ")
-    print(f"The data provided is as follows: {data_str}")
+    # print(f"The data provided is as follows: {data_str}")
 
+    sales_data = data_str.split(",")
+    validate_data(sales_data)
+
+
+def validate_data(values):
+    """
+    Validate data provided by the user
+    """
+    # using 'try', attempt to execute statements that might raise an error
+    try:
+        # if letters were provided...
+        if not all(str(val).isdigit() for val in values):
+            #... raise a 'ValueError' w/ a custom message
+            raise ValueError("expected numbers but received letter input")
+        # if the length of the values list is not equal to 6...
+        elif len(values) != 6:
+            #... raise a 'ValueError' w/ a custom message
+            raise ValueError(
+                # input the length of the list containing the values
+                f"expected 6 values but only received {len(values)}"
+            )
+    except ValueError as e:
+        print(f"Invalid data: {e}. Please try again.\n")
 get_sales_data()
