@@ -67,6 +67,7 @@ def get_sales_data():
     sales_data = data_str.split(",")
     validate_data(sales_data)
 
+# validate the data provided by the user
 
 def validate_data(values):
     """
@@ -74,17 +75,34 @@ def validate_data(values):
     """
     # using 'try', attempt to execute statements that might raise an error
     try:
-        # if letters were provided...
-        if not all(str(val).isdigit() for val in values):
+        # create an empty list to store the incorrect characters
+        invalid_chars = []
+        # create an empty list to store the converted values
+        converted_values = []
+
+        # iterate over the values and check if each value is a digit
+        for val in values:
+            if not str(val).isdigit():
+                # if a value is not a digit, add it to the list of invalid characters
+                invalid_chars.append(val)
+            else:
+                converted_values.append(int(val))
+        # if there are any invalid characters, raise a 'ValueError' with a custom message
+        if invalid_chars:
             #... raise a 'ValueError' w/ a custom message
-            raise ValueError("expected numbers but received letter input")
+            raise ValueError(f"expected only numbers but received {invalid_chars} as input")
         # if the length of the values list is not equal to 6...
         elif len(values) != 6:
             #... raise a 'ValueError' w/ a custom message
             raise ValueError(
                 # input the length of the list containing the values
-                f"expected 6 values but only received {len(values)}"
+                f"expected 6 values but received {len(values)} instead"
             )
+        else:
+            print("Input successfully processed. Thank you.")
+        return True
     except ValueError as e:
         print(f"Invalid data: {e}. Please try again.\n")
+        return False
 get_sales_data()
+
