@@ -57,15 +57,22 @@ def get_sales_data():
     """
     Retrieve sales figures input from the user
     """
-    print("Please enter sales data from the last market.")
-    print("Data should be six numbers, separated by commas.")
-    print("Example: 10, 20, 30, 40, 50, 60\n")
+    # add a while loop to ensure the program starts again upon incorrect entry of data
+    while True:
+        print("Please enter sales data from the last market.")
+        print("Data should be six numbers, separated by commas.")
+        print("Example: 10, 20, 30, 40, 50, 60\n")
 
-    data_str = input("Enter your data here: ")
-    # print(f"The data provided is as follows: {data_str}")
+        data_str = input("Enter your data here: ")
+        # print(f"The data provided is as follows: {data_str}")
 
-    sales_data = data_str.split(",")
-    validate_data(sales_data)
+        sales_data = data_str.split(",")
+
+        if validate_data(sales_data):
+            print('Input successfully processed. Thank you.')
+            break
+    # return the validated data
+    return sales_data
 
 # validate the data provided by the user
 
@@ -98,11 +105,11 @@ def validate_data(values):
                 # input the length of the list containing the values
                 f"expected 6 values but received {len(values)} instead"
             )
-        else:
-            print("Input successfully processed. Thank you.")
-        return True
     except ValueError as e:
         print(f"Invalid data: {e}. Please try again.\n")
         return False
-get_sales_data()
+    
+    return True
+# store the validated data in a variable for later use
+data = get_sales_data()
 
