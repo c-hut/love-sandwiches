@@ -14,7 +14,6 @@ GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('love_sandwiches')
 
 sales_worksheet = SHEET.worksheet('sales')
-stock_worksheet = SHEET.worksheet('stock')
 surplus_worksheet = SHEET.worksheet('surplus')
 
 def get_sales_data():
@@ -70,6 +69,7 @@ def calculate_surplus_data(last_row_sales):
     """
 
     print("Calculating surplus data...\n")
+    stock_worksheet = SHEET.worksheet('stock')
     stock_data = stock_worksheet.get_all_values()
     total_rows = len(stock_worksheet.col_values(1))
     last_row_stock = stock_worksheet.row_values(total_rows)
@@ -88,6 +88,21 @@ def update_worksheet(data, worksheet, worksheet_name):
     worksheet.append_row(data)
     print(f"{worksheet_name.capitalize()} worksheet updated successfully.\n")
 
+def get_last_5_sales_entries():
+    """
+    Collects the last 5 sales entries for each sandwich (data format: list of lists)
+    """
+    columns = []
+    # for each value in range: 1 - 6 (inclusive)...
+    for num in range(1,7):
+        #...use the column total, which is 6...
+        column = sales_worksheet.col_values(num)
+        #...append each column (stored as a list) and its values to the columns list
+        #--> note: slice after retrieving all column data first,
+        # as opposed to only retrieving the last 5 entries - a more flexible approach
+        columns.append(column[-5:])
+    return columns
+
 def program():
     sales_data = get_sales_data()
     update_worksheet(sales_data, sales_worksheet, "sales")
@@ -95,4 +110,6 @@ def program():
     update_worksheet(new_surplus_data, surplus_worksheet, "surplus")
 
 print("Welcome to Love Sandwiches Data Automation\n")
-program()
+# program()
+
+sales_columns = get_last_5_sales_entries()
