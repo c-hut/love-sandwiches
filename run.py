@@ -47,6 +47,7 @@ SHEET = GSPREAD_CLIENT.open('love_sandwiches')
 # step 7: retrieve the 'sales' worksheet from the G-Sheets document opened earlier (SHEET)
 sales_worksheet = SHEET.worksheet('sales')
 stock_worksheet = SHEET.worksheet('stock')
+surplus_worksheet = SHEET.worksheet('surplus')
 
 # step 8: check if the above code is functioning correctly (and comment it out once confirmed)
 
@@ -159,7 +160,7 @@ def calculate_surplus_data(last_row_sales):
 
     # create an empty list within which the results of the below calculation will be stored
     surplus_data = []
-
+    # use the zip method to iterate through two lists simultaneously and perform calculations on them
     for stock, sales in zip(last_row_stock, last_row_sales):
         # use int() method to directly return the converted integer, as opposed to list comprehension
         surplus = int(stock) - sales
@@ -168,6 +169,16 @@ def calculate_surplus_data(last_row_sales):
     # return the result of the calculation
     return surplus_data
 
+def update_surplus_worksheet(new_surplus_data, surplus_worksheet):
+    """
+    Update surplus worksheet: add a new row with and input new surplus data
+    """
+    print("Updating surplus worksheet...\n")
+
+    surplus_worksheet.append_row(new_surplus_data)
+    print("Surplus worksheet updated successfully.\n")
+
+
 def program():
     # store the validated sales data in the reasssigned sales_data variable for later use
     sales_data = get_sales_data()
@@ -175,7 +186,8 @@ def program():
     update_sales_worksheet(sales_data, sales_worksheet)
     # calculate the surplus and input the data into the sales G-Sheet; assign the call to a variable
     new_surplus_data = calculate_surplus_data(sales_data)
-    print(new_surplus_data)
+    # input the data into the surplus G-Sheet
+    update_surplus_worksheet(new_surplus_data, surplus_worksheet)
 
 print("Welcome to Love Sandwiches Data Automation\n")
 program()
