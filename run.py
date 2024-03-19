@@ -7,9 +7,15 @@
 
 # step 2: import the gspread API
 import gspread
-# step 3: import the google-auth library and 'Credentials' class from google.oauth2.service_account module
+
+# step 3: import libraries and classes
+
+# import the google-auth library and 'Credentials' class from google.oauth2.service_account module
 # Note: The 'Credentials' class represents the credentials used to authenticate requests to Google APIs
 from google.oauth2.service_account import Credentials
+
+# import pprint()
+from pprint import pprint
 
 # step 4: define scopes and permissions
 
@@ -40,6 +46,7 @@ SHEET = GSPREAD_CLIENT.open('love_sandwiches')
 
 # step 7: retrieve the 'sales' worksheet from the G-Sheets document opened earlier (SHEET)
 sales_worksheet = SHEET.worksheet('sales')
+stock_worksheet = SHEET.worksheet('stock')
 
 # step 8: check if the above code is functioning correctly (and comment it out once confirmed)
 
@@ -66,7 +73,7 @@ def get_sales_data():
         data_str = input("Enter your data here: ")
         # print(f"The data provided is as follows: {data_str}")
 
-        sales_data = data_str.split(",")
+        sales_data = data_str.split(", ")
 
         if validate_data(sales_data):
             print('Input successfully processed. Thank you.\n')
@@ -112,7 +119,7 @@ def validate_data(values):
     
     return True
 
-def update_sales_worksheet(data):
+def update_sales_worksheet(sales_data, sales_worksheet):
     """
     Update sales worksheet: add a new row with and input validated data
     """
@@ -125,8 +132,50 @@ def update_sales_worksheet(data):
     sales_worksheet.append_row(sales_data)
     print("Sales worksheet updated successfully.\n")
 
-# store the validated sales data in the reasssigned sales_data variable for later use
-sales_data = get_sales_data()
-# input the data to the G-Sheet via the update_sales_worksheet function
-update_sales_worksheet(sales_data)
+def calculate_surplus_data(last_row_sales):
+    """ 
+    Calculate the surplus for each sandwich type
 
+    Calculation: stock - sales = surplus
+    - positive surplus indicates wasted sandwiches
+    - negative surplus indicates additional sandwiches
+    """
+
+    print("Calculating surplus data...\n")
+    # save the retrieved stock data to a variable so that it can be used later
+    stock_data = stock_worksheet.get_all_values()
+    # use pprint to display the stock data in list format
+    # --> pprint(stock_data)
+
+    # retrieve data from the last row of the stock worksheet
+    # --> calculate the total number of rows using the len() and col_values() methods
+    total_rows = len(stock_worksheet.col_values(1))
+     # the total_rows variable holds the number of rows, which equates to the last row number
+     # --> note: negative indexing (stock_data[-1]) would result in errors in the case of empty rows
+    last_row_stock = stock_worksheet.row_values(total_rows)
+    # f-strings used to determine whether the correct data is returned
+    #--> print(f'Here\'s the data from the last row in the stock worksheet: {last_row_stock}')
+    #--> print(f'Here\'s the data from the last row in the stock worksheet: {last_row_sales}')
+
+    # create an empty list within which the results of the below calculation will be stored
+    surplus_data = []
+
+    for stock, sales in zip(last_row_stock, last_row_sales):
+        # use int() method to directly return the converted integer, as opposed to list comprehension
+        surplus = int(stock) - sales
+        # append the result to the surplus_data list above
+        surplus_data.append(surplus)
+    # return the result of the calculation
+    return surplus_data
+
+def program():
+    # store the validated sales data in the reasssigned sales_data variable for later use
+    sales_data = get_sales_data()
+    # input the data into the sales G-Sheet
+    update_sales_worksheet(sales_data, sales_worksheet)
+    # calculate the surplus and input the data into the sales G-Sheet; assign the call to a variable
+    new_surplus_data = calculate_surplus_data(sales_data)
+    print(new_surplus_data)
+
+print("Welcome to Love Sandwiches Data Automation\n")
+program()
