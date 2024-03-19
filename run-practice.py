@@ -178,7 +178,6 @@ def update_surplus_worksheet(new_surplus_data, surplus_worksheet):
     surplus_worksheet.append_row(new_surplus_data)
     print("Surplus worksheet updated successfully.\n")
 
-
 def program():
     # store the validated sales data in the reasssigned sales_data variable for later use
     sales_data = get_sales_data()
