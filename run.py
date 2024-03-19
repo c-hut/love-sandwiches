@@ -39,7 +39,7 @@ GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('love_sandwiches')
 
 # step 7: retrieve the 'sales' worksheet from the G-Sheets document opened earlier (SHEET)
-sales = SHEET.worksheet('sales')
+sales_worksheet = SHEET.worksheet('sales')
 
 # step 8: check if the above code is functioning correctly (and comment it out once confirmed)
 
@@ -69,13 +69,14 @@ def get_sales_data():
         sales_data = data_str.split(",")
 
         if validate_data(sales_data):
-            print('Input successfully processed. Thank you.')
+            print('Input successfully processed. Thank you.\n')
+            # convert the list of strings to integers
+            sales_data = [int(value) for value in sales_data]
             break
-    # return the validated data
+    # return the validated data once valid user input has been identified
     return sales_data
 
 # validate the data provided by the user
-
 def validate_data(values):
     """
     Validate data provided by the user
@@ -110,6 +111,22 @@ def validate_data(values):
         return False
     
     return True
-# store the validated data in a variable for later use
-data = get_sales_data()
+
+def update_sales_worksheet(data):
+    """
+    Update sales worksheet: add a new row with and input validated data
+    """
+    # in the event of an error, adding print statements such as this one can provide clarity
+    # as to the point at which the error occurred, i.e. if it occurred after this print statement,
+    # it could be confirmed that the program reached this point before throwing an error
+    print("Updating sales worksheet...\n")
+    # grab the 'SHEET' variable defined at the top of the file
+    # and use the worksheet() method to access the Sales sheet
+    sales_worksheet.append_row(sales_data)
+    print("Sales worksheet updated successfully.\n")
+
+# store the validated sales data in the reasssigned sales_data variable for later use
+sales_data = get_sales_data()
+# input the data to the G-Sheet via the update_sales_worksheet function
+update_sales_worksheet(sales_data)
 
