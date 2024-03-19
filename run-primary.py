@@ -71,6 +71,7 @@ def calculate_surplus_data(last_row_sales):
     print("Calculating surplus data...\n")
     stock_worksheet = SHEET.worksheet('stock')
     stock_data = stock_worksheet.get_all_values()
+
     total_rows = len(stock_worksheet.col_values(1))
     last_row_stock = stock_worksheet.row_values(total_rows)
 
@@ -103,13 +104,29 @@ def get_last_5_sales_entries():
         columns.append(column[-5:])
     return columns
 
+def calculate_stock_data(data):
+    """
+    Calculate the average stock for each item type and add 10%
+    """
+    print(("Calculating stock data...\n"))
+    # calculate stock data
+    new_stock_data = []
+    # for each column in the list...
+    for column in data:
+        #...convert the string version of each value to an integer using a list comprehension
+        int_column = [int(num) for num in column]
+        average = sum(int_column) / len(int_column)
+        percentage_add_on = average * 1.1
+        new_stock_data.append(percentage_add_on)
+    return new_stock_data
+
 def program():
     sales_data = get_sales_data()
     update_worksheet(sales_data, sales_worksheet, "sales")
     new_surplus_data = calculate_surplus_data(sales_data)
     update_worksheet(new_surplus_data, surplus_worksheet, "surplus")
+    sales_columns = get_last_5_sales_entries()
+    new_stock_data = calculate_stock_data(sales_columns)
 
 print("Welcome to Love Sandwiches Data Automation\n")
-# program()
-
-sales_columns = get_last_5_sales_entries()
+program()
