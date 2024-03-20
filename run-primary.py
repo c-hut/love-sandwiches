@@ -15,6 +15,7 @@ SHEET = GSPREAD_CLIENT.open('love_sandwiches')
 
 sales_worksheet = SHEET.worksheet('sales')
 surplus_worksheet = SHEET.worksheet('surplus')
+stock_worksheet = SHEET.worksheet('stock')
 
 def get_sales_data():
     """
@@ -69,9 +70,8 @@ def calculate_surplus_data(last_row_sales):
     """
 
     print("Calculating surplus data...\n")
-    stock_worksheet = SHEET.worksheet('stock')
     stock_data = stock_worksheet.get_all_values()
-
+    
     total_rows = len(stock_worksheet.col_values(1))
     last_row_stock = stock_worksheet.row_values(total_rows)
 
@@ -94,13 +94,9 @@ def get_last_5_sales_entries():
     Collects the last 5 sales entries for each sandwich (data format: list of lists)
     """
     columns = []
-    # for each value in range: 1 - 6 (inclusive)...
+ 
     for num in range(1,7):
-        #...use the column total, which is 6...
         column = sales_worksheet.col_values(num)
-        #...append each column (stored as a list) and its values to the columns list
-        #--> note: slice after retrieving all column data first,
-        # as opposed to only retrieving the last 5 entries - a more flexible approach
         columns.append(column[-5:])
     return columns
 
@@ -109,15 +105,14 @@ def calculate_stock_data(data):
     Calculate the average stock for each item type and add 10%
     """
     print(("Calculating stock data...\n"))
-    # calculate stock data
+
     new_stock_data = []
-    # for each column in the list...
+
     for column in data:
-        #...convert the string version of each value to an integer using a list comprehension
         int_column = [int(num) for num in column]
         average = sum(int_column) / len(int_column)
         percentage_add_on = average * 1.1
-        new_stock_data.append(percentage_add_on)
+        new_stock_data.append(round(percentage_add_on))
     return new_stock_data
 
 def program():
@@ -127,6 +122,7 @@ def program():
     update_worksheet(new_surplus_data, surplus_worksheet, "surplus")
     sales_columns = get_last_5_sales_entries()
     new_stock_data = calculate_stock_data(sales_columns)
+    update_worksheet(new_stock_data, stock_worksheet, "stock")
 
 print("Welcome to Love Sandwiches Data Automation\n")
 program()

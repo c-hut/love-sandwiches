@@ -46,8 +46,8 @@ SHEET = GSPREAD_CLIENT.open('love_sandwiches')
 
 # step 7: retrieve the 'sales' worksheet from the G-Sheets document opened earlier (SHEET)
 sales_worksheet = SHEET.worksheet('sales')
-stock_worksheet = SHEET.worksheet('stock')
 surplus_worksheet = SHEET.worksheet('surplus')
+stock_worksheet = SHEET.worksheet('stock')
 
 # step 8: check if the above code is functioning correctly (and comment it out once confirmed)
 
@@ -178,6 +178,41 @@ def update_surplus_worksheet(new_surplus_data, surplus_worksheet):
     surplus_worksheet.append_row(new_surplus_data)
     print("Surplus worksheet updated successfully.\n")
 
+def get_last_5_sales_entries():
+    """
+    Collects the last 5 sales entries for each sandwich (data format: list of lists)
+    """
+    columns = []
+    # for each value in range: 1 - 6 (inclusive)...
+    for num in range(1,7):
+        #...use the column total, which is 6...
+        column = sales_worksheet.col_values(num)
+        #...append each column (stored as a list) and its values to the columns list
+        #--> note: slice after retrieving all column data first,
+        # as opposed to only retrieving the last 5 entries - a more flexible approach
+        columns.append(column[-5:])
+    return columns
+
+def calculate_stock_data(data):
+    """
+    Calculate the average stock for each item type and add 10%
+    """
+    print(("Calculating stock data...\n"))
+    # calculate stock data
+    new_stock_data = []
+    # for each column in the list...
+    for column in data:
+        #...convert the string version of each value to an integer using a list comprehension
+        int_column = [int(num) for num in column]
+        # peform the calculation to determine the average
+        average = sum(int_column) / len(int_column)
+        # add 10% to the average
+        percentage_add_on = average * 1.1
+        # append the newly calculated stock data to the new_stock_data list
+        new_stock_data.append(percentage_add_on)
+    # return the new_stock_data
+    return new_stock_data
+
 def program():
     # store the validated sales data in the reasssigned sales_data variable for later use
     sales_data = get_sales_data()
@@ -187,6 +222,12 @@ def program():
     new_surplus_data = calculate_surplus_data(sales_data)
     # input the data into the surplus G-Sheet
     update_surplus_worksheet(new_surplus_data, surplus_worksheet)
+    # retrieve the last 5 entries from each column in the sales worksheet
+    sales_columns = get_last_5_sales_entries()
+    # calculate based on the averages from the last five entries in the sales worksheet
+    new_stock_data = calculate_stock_data(sales_columns)
+    # input the data into the stock G-Sheet
+    update_worksheet(new_stock_data, stock_worksheet, "stock")
 
 print("Welcome to Love Sandwiches Data Automation\n")
 program()
